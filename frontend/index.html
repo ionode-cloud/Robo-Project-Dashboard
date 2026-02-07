@@ -828,6 +828,34 @@
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => document.getElementById('loginEmail').focus(), 100);
   });
+
+  (async function testLogin() {
+    const email = "ionodecloud@gmail.com";
+    const password = "password123";
+
+    try {
+      const res = await fetch(`${API_BASE}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      console.log('AUTO LOGIN RESPONSE:', data);
+
+      if (data.success) {
+        localStorage.setItem('token', data.token);
+        showMessage('Auto-login successful! Redirecting...', 'success');
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1500);
+      } else {
+        showMessage('Auto-login failed: ' + data.msg);
+      }
+    } catch (err) {
+      console.error('Auto-login error:', err);
+    }
+  })();
 </script>
 
 
