@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Animated Login - JWT Auth</title>
+  <title>Robo Dashboard</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" />
   <style>
@@ -611,13 +612,9 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js"></script>
- <!--  FIXED: Single lodash only -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js"></script>
-
 <script>
   //  YOUR DOMAIN API
-  const API_BASE = 'https://robo-dashboard.api.ionode.cloud/api/auth';
+  const API_BASE = 'http://robo-dashboard.api.ionode.cloud/api/auth';
   let currentEmail = '';
 
   // Get DOM elements safely
@@ -829,33 +826,6 @@
     setTimeout(() => document.getElementById('loginEmail').focus(), 100);
   });
 
-  (async function testLogin() {
-    const email = "ionodecloud@gmail.com";
-    const password = "password123";
-
-    try {
-      const res = await fetch(`${API_BASE}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-
-      const data = await res.json();
-      console.log('AUTO LOGIN RESPONSE:', data);
-
-      if (data.success) {
-        localStorage.setItem('token', data.token);
-        showMessage('Auto-login successful! Redirecting...', 'success');
-        setTimeout(() => {
-          window.location.href = 'dashboard.html';
-        }, 1500);
-      } else {
-        showMessage('Auto-login failed: ' + data.msg);
-      }
-    } catch (err) {
-      console.error('Auto-login error:', err);
-    }
-  })();
 </script>
 
 
