@@ -9,7 +9,7 @@ const cors = require('cors');
 const app = express();
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 app.use(cors({
-    origin: ['http://127.0.0.1:5501', 'http://localhost:5501', '*','https://robo-dashboard.ionode.cloud'], 
+    origin: ['http://127.0.0.1:5501', 'http://localhost:5501', '*','https://robo-dashboard.api.ionode.cloud'], 
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
@@ -130,6 +130,44 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
+// GET /api/auth/login - Health check (returns login form info)
+app.get('/api/auth/login', (req, res) => {
+    res.json({ 
+        success: true, 
+        msg: 'Login endpoint ready',
+        requires: ['email', 'password'],
+        method: 'POST'
+    });
+});
+
+// POST /api/auth/login - Your existing login (unchanged)
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ success: false, msg: 'Email and password required' });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user || !await bcrypt.compare(password, user.password)) {
+            return res.status(400).json({ success: false, msg: 'Invalid credentials' });
+        }
+
+        const token = jwt.sign(
+            { id: user._id, email: user.email }, 
+            process.env.JWT_SECRET || 'your-super-secret-key', 
+            { expiresIn: '24h' }
+        );
+
+        res.json({ 
+            success: true, 
+            token, 
+            user: { id: user._id, email: user.email } 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, msg: 'Server error' });
+    }
+});
 
 app.post('/api/auth/forgot-password', async (req, res) => {
     try {
