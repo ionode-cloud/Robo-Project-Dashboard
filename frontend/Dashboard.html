@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROBO Dashboard - Projects</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover { background: #2563eb; }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover { background: #dc2626; }
+
+        .btn-small {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group input,.urls-row input {
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+        .urls-row {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .url-section {
+            flex: 1;
+            display: flex;
+            flex-direction:  column;
+            gap: 1rem;
+        }
+
+        .url-section h4 {
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .url-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .url-row input { 
+            flex: 1; 
+        }
+
+        .url-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .projects-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .projects-table th,
+        .projects-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .projects-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .project-name-cell {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .url-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .url-tag {
+            padding: 0.375rem 0.75rem;
+            background: #eff6ff;
+            color: #1e40af;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .url-tag.backend {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .no-projects {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            
+            .projects-table {
+                font-size: 0.875rem;
+            }
+            
+            .projects-table th,
+            .projects-table td {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .url-tags {
+                flex-direction: column;
+            }
+
+            .urls-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-robot"></i>
+            ROBO Dashboard
+        </div>
+        <div class="user-info">
+            <button class="btn btn-danger" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2 id="formTitle"><i class="fas fa-plus"></i> Add Project</h2>
+            <form id="projectForm" class="form-grid">
+                <div class="form-group">
+                    <label><i class="fas fa-project-diagram"></i> Project Name</label>
+                    <input type="text" id="projectName" placeholder="Enter project name" required>
+                </div>
+                
+                <div class="urls-row">
+                    <div class="url-section">
+                        <h4><i class="fas fa-database"></i> Backend URLs</h4>
+                        <div id="backendUrls">
+                            <div class="url-row">
+                                <input type="url" class="url-input backend-url" placeholder="https://api.example.com">
+                                <div class="url-controls">
+                                    <button type="button" class="btn btn-primary btn-small" onclick="addBackendUrl()">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="url-section">
+                        <h4><i class="fas fa-globe"></i> Frontend URLs</h4>
+                        <div id="frontendUrls">
+                            <div class="url-row">
+                                <input type="url" class="url-input frontend-url" placeholder="https://frontend.example.com">
+                                <div class="url-controls">
+                                    <button type="button" class="btn btn-primary btn-small" onclick="addFrontendUrl()">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; font-size: 1.1rem;">
+                    <i class="fas fa-rocket"></i> Add Project
+                </button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-list"></i> Projects</h2>
+            <div id="projectsContainer">
+                <div class="no-projects">
+                    <i class="fas fa-rocket" style="font-size: 3rem; color: #6b7280;"></i>
+                    <p>No projects yet. Add one above!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5555/api';
+        const token = localStorage.getItem('token');
+        let projects = [];
+        let editingProjectId = null;
+        if (!token) {
+            console.log('No token - using public API');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProjects);
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+        }
+
+        function addFrontendUrl() {
+            const container = document.getElementById('frontendUrls');
+            const row = document.createElement('div');
+            row.className = 'url-row';
+            row.innerHTML = `
+                <input type="url" class="url-input frontend-url" placeholder="https://frontend.example.com">
+                <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()">×</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function addBackendUrl() {
+            const container = document.getElementById('backendUrls');
+            const row = document.createElement('div');
+            row.className = 'url-row';
+            row.innerHTML = `
+                <input type="url" class="url-input backend-url" placeholder="https://api.example.com">
+                <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()">×</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function normalizeProjectId(project) {
+            if (project._id) {
+                project.id = project._id; 
+            }
+            return project;
+        }
+
+        async function loadProjects() {
+            try {
+                const res = await fetch(`${API_BASE}/projects`);
+                if (res.ok) {
+                    projects = await res.json();
+                    projects = projects.map(normalizeProjectId);
+                } else {
+                    projects = JSON.parse(localStorage.getItem('projects') || '[]');
+                }
+            } catch (error) {
+                console.error('Load projects failed:', error);
+                projects = JSON.parse(localStorage.getItem('projects') || '[]');
+            }
+            renderProjects();
+        }
+
+        function editProject(id) {
+            const project = projects.find(p => p.id === id || p._id === id);
+            if (!project) {
+                alert('Project not found!');
+                return;
+            }
+
+            editingProjectId = project.id || project._id;
+
+            // Populate form fields
+            document.getElementById('projectName').value = project.name || '';
+            
+            // Clear and populate Backend URLs
+            const backendContainer = document.getElementById('backendUrls');
+            backendContainer.innerHTML = '';
+            (project.backendUrls || []).forEach(url => {
+                const row = document.createElement('div');
+                row.className = 'url-row';
+                row.innerHTML = `
+                    <input type="url" class="url-input backend-url" value="${url}" placeholder="https://api.example.com">
+                    <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()">×</button>
+                `;
+                backendContainer.appendChild(row);
+            });
+            if (!(project.backendUrls || []).length) {
+                const emptyRow = document.createElement('div');
+                emptyRow.className = 'url-row';
+                emptyRow.innerHTML = `
+                    <input type="url" class="url-input backend-url" placeholder="https://api.example.com">
+                    <div class="url-controls">
+                        <button type="button" class="btn btn-primary btn-small" onclick="addBackendUrl()">+</button>
+                    </div>
+                `;
+                backendContainer.appendChild(emptyRow);
+            }
+
+            // Clear and populate Frontend URLs
+            const frontendContainer = document.getElementById('frontendUrls');
+            frontendContainer.innerHTML = '';
+            (project.frontendUrls || []).forEach(url => {
+                const row = document.createElement('div');
+                row.className = 'url-row';
+                row.innerHTML = `
+                    <input type="url" class="url-input frontend-url" value="${url}" placeholder="https://frontend.example.com">
+                    <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()">×</button>
+                `;
+                frontendContainer.appendChild(row);
+            });
+            if (!(project.frontendUrls || []).length) {
+                const emptyRow = document.createElement('div');
+                emptyRow.className = 'url-row';
+                emptyRow.innerHTML = `
+                    <input type="url" class="url-input frontend-url" placeholder="https://frontend.example.com">
+                    <div class="url-controls">
+                        <button type="button" class="btn btn-primary btn-small" onclick="addFrontendUrl()">+</button>
+                    </div>
+                `;
+                frontendContainer.appendChild(emptyRow);
+            }
+
+            // Update form title and button
+            document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Project';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update Project';
+            document.getElementById('submitBtn').style.background = '#10b981';
+            document.querySelector('.card:first-child').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetForm() {
+            editingProjectId = null;
+            document.getElementById('projectForm').reset();
+            document.getElementById('backendUrls').innerHTML = `
+                <div class="url-row">
+                    <input type="url" class="url-input backend-url" placeholder="https://api.example.com">
+                    <div class="url-controls">
+                        <button type="button" class="btn btn-primary btn-small" onclick="addBackendUrl()">+</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('frontendUrls').innerHTML = `
+                <div class="url-row">
+                    <input type="url" class="url-input frontend-url" placeholder="https://frontend.example.com">
+                    <div class="url-controls">
+                        <button type="button" class="btn btn-primary btn-small" onclick="addFrontendUrl()">+</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('formTitle').innerHTML = '<i class="fas fa-plus"></i> Add Project';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-rocket"></i> Add Project';
+            document.getElementById('submitBtn').style.background = '#3b82f6';
+        }
+
+        //  FIXED: Save with PUBLIC API calls
+        async function saveProject(data, isEdit = false) {
+            try {
+                const method = isEdit ? 'PUT' : 'POST';
+                const url = isEdit ? `${API_BASE}/projects/${data.id}` : `${API_BASE}/projects`;
+                
+                const res = await fetch(url, {
+                    method,
+                    headers: { 
+                        'Content-Type': 'application/json'
+                        //  REMOVED: Authorization header - public API
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (res.ok) {
+                    await loadProjects();
+                    resetForm();
+                    return;
+                }
+            } catch (error) {
+                console.error('API save failed:', error);
+            }
+
+            // Fallback to localStorage
+            let localProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+            data.id = data.id || `proj_${Date.now()}`;
+            const index = localProjects.findIndex(p => p.id === data.id);
+            if (index > -1) localProjects[index] = data;
+            else localProjects.unshift(data);
+            localStorage.setItem('projects', JSON.stringify(localProjects));
+            projects = localProjects;
+            renderProjects();
+            resetForm();
+        }
+
+        async function deleteProject(id) {
+            if (!confirm('Delete this project?')) return;
+            
+            try {
+                //  FIXED: Public DELETE (no token)
+                await fetch(`${API_BASE}/projects/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } catch (error) {
+                console.error('Delete failed:', error);
+            }
+            
+            let localProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+            localProjects = localProjects.filter(p => p.id !== id);
+            localStorage.setItem('projects', JSON.stringify(localProjects));
+            projects = localProjects;
+            renderProjects();
+        }
+
+        function getHostname(url) {
+            try { return new URL(url).hostname; } catch { return url.slice(0, 20) + '...'; }
+        }
+
+        function renderProjects() {
+            const container = document.getElementById('projectsContainer');
+            if (!projects.length) {
+                container.innerHTML = `
+                    <div class="no-projects">
+                        <i class="fas fa-rocket" style="font-size: 3rem; color: #6b7280;"></i>
+                        <p>No projects yet. Add one above!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="projects-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Project Name</th>
+                            <th style="width: 35%;">Backend URLs</th>
+                            <th style="width: 35%;">Frontend URLs</th>
+                            <th style="width: 15%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${projects.map(p => {
+                            //  FIXED: Normalize ID for onclick
+                            const projectId = p.id || p._id;
+                            return `
+                            <tr>
+                                <td><div class="project-name-cell"><i class="fas fa-project-diagram"></i> ${p.name || 'Unnamed'}</div></td>
+                                <td>
+                                    <div class="url-tags">
+                                        ${p.backendUrls?.length ? p.backendUrls.map(url => 
+                                            `<a href="${url}" target="_blank" class="url-tag backend">
+                                                <i class="fas fa-server"></i> ${getHostname(url)}
+                                            </a>`
+                                        ).join('') : 'No backend'}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="url-tags">
+                                        ${p.frontendUrls?.length ? p.frontendUrls.map(url => 
+                                            `<a href="${url}" target="_blank" class="url-tag">
+                                                <i class="fas fa-globe"></i> ${getHostname(url)}
+                                            </a>`
+                                        ).join('') : 'No frontend'}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-small" onclick="editProject('${projectId}')">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button class="btn btn-danger btn-small" onclick="deleteProject('${projectId}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Form submit handler
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('projectForm').addEventListener('submit', async e => {
+                e.preventDefault();
+                const name = document.getElementById('projectName').value.trim();
+                const backendUrls = Array.from(document.querySelectorAll('#backendUrls .backend-url'))
+                    .map(i => i.value.trim()).filter(Boolean);
+                const frontendUrls = Array.from(document.querySelectorAll('#frontendUrls .frontend-url'))
+                    .map(i => i.value.trim()).filter(Boolean);
+
+                if (!name || (!backendUrls.length && !frontendUrls.length)) {
+                    alert('Add name and at least one URL');
+                    return;
+                }
+
+                const projectData = { name, backendUrls, frontendUrls };
+                if (editingProjectId) {
+                    projectData.id = editingProjectId;
+                }
+
+                await saveProject(projectData, !!editingProjectId);
+            });
+        });
+    </script>
+</body>
+</html>

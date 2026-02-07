@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Animated Login - JWT Auth</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;500;600;700&display=swap");
+
+    * {
+      box-sizing: border-box;
+      text-transform: capitalize;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      position: relative;
+      top: 50%;
+      left: 50%;
+      display: inline-block;
+      width: 100vw;
+      height: 100vh;
+      border-radius: 3px;
+      transform: translate(-50%, -50%);
+      overflow: hidden;
+      background-image: linear-gradient(to top right, #f9a743, #f9db5f);
+    }
+    .container .ear {
+      position: absolute;
+      top: -110px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background-color: #243946;
+    }
+
+    .container .ear.ear--left {
+      left: -135px;
+    }
+
+    .container .ear.ear--right {
+      right: -135px;
+    }
+
+    .container .face {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 200px;
+      height: 150px;
+      margin: 80px auto 10px;
+      --rotate-head: 0deg;
+      transform: rotate(var(--rotate-head));
+      transition: transform 0.2s;
+      transform-origin: center 20px;
+    }
+
+    .container .eye {
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background-color: #243946;
+    }
+
+    .container .eye.eye--left {
+      margin-right: 40px;
+    }
+
+    .container .eye.eye--right {
+      margin-left: 40px;
+    }
+
+    .container .eye .glow {
+      position: relative;
+      top: 3px;
+      right: -12px;
+      width: 12px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #fff;
+      transform: rotate(38deg);
+    }
+
+    .container .nose {
+      position: relative;
+      top: 30px;
+      transform: scale(1.1);
+    }
+
+    .container .nose .glow {
+      position: absolute;
+      top: 3px;
+      left: 32%;
+      width: 15px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #476375;
+    }
+
+    .container .mouth {
+      position: relative;
+      margin-top: 45px;
+    }
+
+    .container svg.smile {
+      position: absolute;
+      left: -28px;
+      top: -19px;
+      transform: scaleX(1.1);
+      stroke: #243946;
+    }
+
+    .container .mouth-hole {
+      position: absolute;
+      top: 0;
+      left: -50%;
+      width: 60px;
+      height: 15px;
+      border-radius: 50%/100% 100% 0% 0;
+      transform: rotate(180deg);
+      background-color: #243946;
+      z-index: -1;
+    }
+
+    .container .tongue {
+      position: relative;
+      top: 5px;
+      width: 30px;
+      height: 20px;
+      background-color: #ffd7dd;
+      transform-origin: top;
+      transform: rotateX(60deg);
+    }
+
+    .container .tongue.breath {
+      animation: breath 0.3s infinite linear;
+    }
+
+    .container .tongue-top {
+      position: absolute;
+      bottom: -15px;
+      width: 30px;
+      height: 30px;
+      border-radius: 15px;
+      background-color: #ffd7dd;
+    }
+
+    .container .line {
+      position: absolute;
+      top: 0;
+      width: 30px;
+      height: 5px;
+      background-color: #fcb7bf;
+    }
+
+    .container .median {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 25px;
+      border-radius: 5px;
+      background-color: #fcb7bf;
+    }
+
+    .container .hands {
+      position: relative;
+    }
+
+    .container .hands .hand {
+      position: absolute;
+      top: -3px;
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      z-index: 1;
+    }
+
+    .container .hands .hand--left {
+      left: -85px;
+    }
+
+    .container .hands .hand--left.hide {
+      transform: translate(2px, -155px) rotate(-160deg);
+    }
+
+    .container .hands .hand--left.peek {
+      transform: translate(0px, -120px) rotate(-160deg);
+    }
+
+    .container .hands .hand--right {
+      left: 30px;
+    }
+
+    .container .hands .hand--right.hide {
+      transform: translate(-6px, -155px) rotate(160deg);
+    }
+
+    .container .hands .hand--right.peek {
+      transform: translate(-4px, -120px) rotate(160deg);
+    }
+
+    .container .hands .finger {
+      position: relative;
+      z-index: 0;
+    }
+
+    .container .hands .finger .bone {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #243946;
+      border-bottom: none;
+      border-top: none;
+      background-color: #fac555;
+    }
+
+    .container .hands .finger .nail {
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 20px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid #243946;
+      background-color: #fac555;
+      z-index: -1;
+    }
+
+    .container .hands .finger:nth-child(1),
+    .container .hands .finger:nth-child(3) {
+      left: 4px;
+      z-index: 1;
+    }
+
+    .container .hands .finger:nth-child(1) .bone,
+    .container .hands .finger:nth-child(3) .bone {
+      height: 10px;
+    }
+
+    .container .hands .finger:nth-child(3) {
+      left: -4px;
+    }
+
+    .container .hands .finger:nth-child(2) {
+      top: -5px;
+      z-index: 2;
+    }
+
+    .container .hands .finger:nth-child(1) .nail,
+    .container .hands .finger:nth-child(3) .nail {
+      top: 0px;
+    }
+    .container .tengah {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .container .auth-section {
+      display: none;
+      flex-direction: column;
+      max-width: 380px;
+      width: 100%;
+      padding: 30px 25px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .container .auth-section.active {
+      display: flex;
+      animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .container .auth-section h3 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #243946;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .container .auth-section label {
+      position: relative;
+      display: block;
+      width: 100%;
+      margin-bottom: 18px;
+      padding: 0 20px;
+      background: white;
+      border: 2px solid #e1e5e9;
+      border-radius: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .container .auth-section label:focus-within {
+      border-color: #243946;
+      box-shadow: 0 0 0 4px rgba(36, 57, 70, 0.1);
+    }
+
+    .container .auth-section label i {
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      transform: translateY(-50%);
+      color: #666;
+      font-size: 1.2rem;
+      z-index: 2;
+    }
+
+    .container .auth-section input {
+      width: 100%;
+      height: 50px;
+      border: none;
+      border-radius: 12px;
+      padding: 0 20px 0 55px;
+      font-size: 1rem;
+      background: transparent;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .container .auth-section input::placeholder {
+      color: #999;
+    }
+
+    .container .auth-section .back-btn,
+    .container .auth-section .action-btn {
+      width: 100%;
+      height: 50px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .container .auth-section .action-btn {
+      background: linear-gradient(135deg, #243946, #1e2a35);
+      color: white;
+      box-shadow: 0 8px 25px rgba(36, 57, 70, 0.3);
+    }
+
+    .container .auth-section .action-btn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(36, 57, 70, 0.4);
+    }
+
+    .container .auth-section .back-btn {
+      background: #f8f9fa;
+      color: #243946;
+      border: 2px solid #e1e5e9;
+    }
+
+    .container .auth-section .back-btn:hover {
+      background: #243946;
+      color: white;
+      border-color: #243946;
+    }
+
+    .container .auth-section .email-display {
+      background: #f0f9ff;
+      border: 1px solid #0ea5e9;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      color: #0369a1;
+      font-size: 0.95rem;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .forgot-link {
+      text-align: center;
+      color: #243946;
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 12px;
+      transition: color 0.3s ease;
+      font-weight: 500;
+    }
+
+    .forgot-link:hover {
+      color: #1e2a35;
+      text-decoration: underline;
+    }
+
+    .message {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      padding: 18px 25px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      transform: translateX(400px);
+      transition: all 0.4s ease;
+      z-index: 2000;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      font-family: "Poppins", sans-serif;
+    }
+
+    .message.show {
+      transform: translateX(0);
+    }
+
+    .message.success {
+      background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .message.error {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    @keyframes breath {
+
+      0%,
+      100% {
+        transform: rotateX(0deg);
+      }
+
+      50% {
+        transform: rotateX(60deg);
+      }
+    }
+
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-5px);
+      }
+
+      75% {
+        transform: translateX(5px);
+      }
+    }
+
+    .shake {
+      animation: shake 0.5s ease-in-out;
+    }
+
+    .password-button {
+      position: absolute;
+      top: 15px;
+      right: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 80px;
+      height: 27px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background-color: #243946;
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="ear ear--left"></div>
+    <div class="ear ear--right"></div>
+    <div class="face">
+      <div class="eyes">
+        <div class="eye eye--left">
+          <div class="glow"></div>
+        </div>
+        <div class="eye eye--right">
+          <div class="glow"></div>
+        </div>
+      </div>
+      <div class="nose">
+        <svg width="38.161" height="22.03">
+          <path
+            d="M2.017 10.987Q-.563 7.513.157 4.754C.877 1.994 2.976.135 6.164.093 16.4-.04 22.293-.022 32.048.093c3.501.042 5.48 2.081 6.02 4.661q.54 2.579-2.051 6.233-8.612 10.979-16.664 11.043-8.053.063-17.336-11.043z"
+            fill="#243946"></path>
+        </svg>
+        <div class="glow"></div>
+      </div>
+      <div class="mouth">
+        <svg class="smile" viewBox="-2 -2 84 23" width="84" height="23">
+          <path d="M0 0c3.76 9.279 9.69 18.98 26.712 19.238 17.022.258 10.72.258 28 0S75.959 9.182 79.987.161"
+            fill="none" stroke-width="3" stroke-linecap="square" stroke-miterlimit="3"></path>
+        </svg>
+        <div class="mouth-hole"></div>
+        <div class="tongue breath">
+          <div class="tongue-top"></div>
+          <div class="line"></div>
+          <div class="median"></div>
+        </div>
+      </div>
+    </div>
+    <div class="tengah">
+      <div class="hands">
+        <div class="hand hand--left">
+          <div class="finger">
+            <div class="bone"></div>
+            <div class="nail"></div>
+          </div>
+          <div class="finger">
+            <div class="bone"></div>
+            <div class="nail"></div>
+          </div>
+          <div class="finger">
+            <div class="bone"></div>
+            <div class="nail"></div>
+          </div>
+        </div>
+        <div class="hand hand--right">
+          <div class="finger">
+            <div class="bone"></div>
+            <div class="nail"></div>
+          </div>
+          <div class="finger">
+            <div class="bone"></div>
+            <div class="nail"></div>
+          </div>
+          <div class="finger">
+            <div class="bone"></div>
+            <div class="nail"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN SECTION -->
+    <div class="tengah">
+      <div id="loginSection" class="auth-section active">
+        <h3>ROBO Login</h3>
+        <label><i class="fas fa-envelope"></i>
+          <input id="loginEmail" type="email" placeholder="Email" autocomplete="email">
+        </label>
+        <label><i class="fas fa-lock"></i>
+          <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password">
+          <button class="password-button" onclick="togglePassword()">show</button>
+        </label>
+        <button class="action-btn" onclick="handleLogin()">Sign In</button>
+        <p class="forgot-link" onclick="showForgotSection()">Forgot Password?</p>
+      </div>
+
+      <!-- FORGOT PASSWORD SECTION -->
+      <div id="forgotSection" class="auth-section">
+        <h3>Reset Password </h3>
+        <label><i class="fas fa-envelope"></i>
+          <input id="forgotEmail" type="email" placeholder="Enter your email">
+        </label>
+        <button class="action-btn" onclick="sendOTP()">Send OTP</button>
+        <button class="back-btn" onclick="showLoginSection()"> Back to Login</button>
+      </div>
+
+      <!-- OTP SECTION -->
+      <div id="otpSection" class="auth-section">
+        <h3>Verify OTP </h3>
+        <p class="email-display" id="otpEmailDisplay"></p>
+        <label><i class="fas fa-key"></i>
+          <input id="otpCode" type="text" placeholder="Enter 6-digit OTP" maxlength="6">
+        </label>
+        <button class="action-btn" onclick="verifyOTP()">Verify OTP</button>
+        <button class="back-btn" onclick="showForgotSection()"> Back</button>
+      </div>
+
+      <!-- RESET PASSWORD SECTION -->
+      <div id="resetSection" class="auth-section">
+        <h3>New Password </h3>
+        <p class="email-display" id="resetEmailDisplay"></p>
+        <label><i class="fas fa-lock"></i>
+          <input id="newPassword" type="password" placeholder="New password (min 6 chars)">
+        </label>
+        <label><i class="fas fa-lock"></i>
+          <input id="confirmPassword" type="password" placeholder="Confirm password">
+        </label>
+        <button class="action-btn" onclick="resetPassword()">Reset Password</button>
+        <button class="back-btn" onclick="showOTPSection()"> Back</button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div id="message" class="message"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js"></script>
+  <script>
+    const API_BASE = 'http://localhost:5555/api/auth';
+    let currentEmail = '';
+
+    // ORIGINAL ANIMATIONS - PRESERVED
+    const usernameInput = document.getElementById('loginEmail');
+    const passwordInput = document.getElementById('loginPassword');
+    const face = document.querySelector('.face');
+
+    // Animation events
+    if (passwordInput) {
+      passwordInput.addEventListener('focus', () => {
+        document.querySelectorAll('.hand').forEach(hand => hand.classList.add('hide'));
+        document.querySelector('.tongue')?.classList.remove('breath');
+      });
+
+      passwordInput.addEventListener('blur', () => {
+        document.querySelectorAll('.hand').forEach(hand => hand.classList.remove('hide', 'peek'));
+        document.querySelector('.tongue')?.classList.add('breath');
+      });
+    }
+
+    if (usernameInput) {
+      usernameInput.addEventListener('focus', () => {
+        const length = Math.min(usernameInput.value.length - 16, 19);
+        document.querySelectorAll('.hand').forEach(hand => hand.classList.remove('hide', 'peek'));
+        face.style.setProperty('--rotate-head', `${-length}deg`);
+      });
+
+      usernameInput.addEventListener('blur', () => {
+        face.style.setProperty('--rotate-head', '0deg');
+      });
+
+      usernameInput.addEventListener('input', _.throttle((e) => {
+        const length = Math.min(e.target.value.length - 16, 19);
+        face.style.setProperty('--rotate-head', `${-length}deg`);
+      }, 100));
+    }
+
+    function togglePassword() {
+      if (passwordInput.type === 'text') {
+        passwordInput.type = 'password';
+        document.querySelectorAll('.hand').forEach(hand => {
+          hand.classList.remove('peek');
+          hand.classList.add('hide');
+        });
+      } else {
+        passwordInput.type = 'text';
+        document.querySelectorAll('.hand').forEach(hand => {
+          hand.classList.remove('hide');
+          hand.classList.add('peek');
+        });
+      }
+    }
+
+    // SECTION SWITCHING
+    function showSection(sectionId) {
+      document.querySelectorAll('.auth-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.getElementById(sectionId).classList.add('active');
+    }
+
+    function showLoginSection() { showSection('loginSection'); }
+    function showForgotSection() { showSection('forgotSection'); }
+    function showOTPSection() { showSection('otpSection'); }
+    function showResetSection() { showSection('resetSection'); }
+
+    function showMessage(msg, type = 'error') {
+      const messageEl = document.getElementById('message');
+      messageEl.textContent = msg;
+      messageEl.className = `message ${type} show`;
+      setTimeout(() => messageEl.classList.remove('show'), 4000);
+    }
+
+    //  FIXED LOGIN FUNCTION - MAIN ISSUE SOLVED
+    async function handleLogin(event) {
+      // Prevent any default behavior
+      if (event) event.preventDefault();
+
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      if (!email || !password) {
+        showMessage('Please fill all fields');
+        document.getElementById('loginSection').classList.add('shake');
+        setTimeout(() => document.getElementById('loginSection').classList.remove('shake'), 500);
+        return;
+      }
+
+      const loginBtn = document.querySelector('#loginSection .action-btn');
+      const originalText = loginBtn.textContent;
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Signing In...';
+
+      try {
+        console.log(' Attempting login for:', email);
+
+        const response = await fetch(`${API_BASE}/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        console.log(' Response status:', response.status);
+        const data = await response.json();
+        console.log(' Full response:', data);
+
+        if (response.ok && data.success && data.token) {
+          // Save token
+          localStorage.setItem('token', data.token);
+          // Multiple redirect attempts
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1500);
+
+          // Backup redirect
+          setTimeout(() => {
+            if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+              window.location.assign('dashboard.html');
+            }
+          }, 2500);
+
+        } else {
+          console.log(' Login failed:', data.msg || data.error);
+          showMessage(data.msg || data.error || 'Login failed');
+        }
+      } catch (error) {
+        console.error(' Network/Server error:', error);
+        showMessage('Server not running? Check port 5555');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = originalText;
+      }
+    }
+
+    // FORGOT PASSWORD FUNCTIONS
+    async function sendOTP() {
+      currentEmail = document.getElementById('forgotEmail').value.trim();
+      if (!currentEmail) return showMessage('Please enter email');
+
+      try {
+        const response = await fetch(`${API_BASE}/forgot-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentEmail })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          document.getElementById('otpEmailDisplay').textContent = `OTP sent to: ${currentEmail}`;
+          showOTPSection();
+          showMessage('OTP sent! Check your email ', 'success');
+        } else {
+          showMessage(data.msg || 'Failed to send OTP');
+        }
+      } catch (error) {
+        showMessage('Server error');
+      }
+    }
+
+    async function verifyOTP() {
+      const otp = document.getElementById('otpCode').value.trim();
+      if (otp.length !== 6) return showMessage('Enter valid 6-digit OTP');
+
+      try {
+        const response = await fetch(`${API_BASE}/verify-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentEmail, otp })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          document.getElementById('resetEmailDisplay').textContent = `Reset for: ${currentEmail}`;
+          showResetSection();
+          showMessage('OTP verified! ', 'success');
+        } else {
+          showMessage(data.msg || 'Invalid OTP');
+        }
+      } catch (error) {
+        showMessage('Server error');
+      }
+    }
+
+    async function resetPassword() {
+      const password = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) return showMessage('Passwords do not match!');
+      if (password.length < 6) return showMessage('Password must be 6+ characters');
+
+      try {
+        const response = await fetch(`${API_BASE}/reset-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentEmail, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          showMessage('Password reset successful! Please login.', 'success');
+          setTimeout(() => {
+            showLoginSection();
+            document.getElementById('loginEmail').value = currentEmail;
+          }, 2000);
+        } else {
+          showMessage(data.msg || 'Reset failed');
+        }
+      } catch (error) {
+        showMessage('Server error');
+      }
+    }
+
+    // ENTER KEY SUPPORT
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const activeSection = document.querySelector('.auth-section.active');
+        if (activeSection.id === 'otpSection') return verifyOTP();
+        if (activeSection.id === 'resetSection') return resetPassword();
+        if (activeSection.id === 'forgotSection') return sendOTP();
+        return handleLogin();
+      }
+    });
+
+    // MAIN INITIALIZATION
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // Fix button onclick handlers
+      document.querySelector('#loginSection .action-btn').onclick = handleLogin;
+      document.querySelector('#forgotSection .action-btn').onclick = sendOTP;
+      document.querySelector('#otpSection .action-btn').onclick = verifyOTP;
+      document.querySelector('#resetSection .action-btn').onclick = resetPassword;
+
+      // Focus first input
+      setTimeout(() => document.getElementById('loginEmail').focus(), 100);
+    });
+  </script>
+
+</body>
+
+</html>
