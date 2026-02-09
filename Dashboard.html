@@ -412,7 +412,7 @@
     <header class="header">
         <div class="logo">
             <i class="fas fa-robot"></i>
-            ROBO Dashboard ---
+            ROBO Dashboard
         </div>
         <div class="user-info">
             <button class="btn btn-danger" onclick="logout()">
@@ -426,10 +426,10 @@
         <div class="card">
             <!-- PROJECTS HEADER WITH ADD BUTTON ON RIGHT -->
             <div class="projects-header">
-                <h2><i class="fas fa-list"></i> Projects</h2>
+                <h2><i class="fas fa-list"></i> Cloud App</h2>
                 <button id="openAddProjectModal" class="btn btn-primary" style="font-size: 1rem; padding: 0.75rem 1.5rem;">
                     <i class="fas fa-plus"></i>
-                    Add New Project
+                    Add Cloud App
                 </button>
             </div>
 
@@ -449,7 +449,7 @@
                 <i class="fas fa-times"></i>
             </button>
             <div id="modalContent">
-                <h2 id="formTitle"><i class="fas fa-plus"></i> Add Project</h2>
+                <h2 id="formTitle"></i> New Cloud App</h2>
                 <form id="projectForm" class="form-grid">
                     <div class="form-group">
                         <label><i class="fas fa-project-diagram"></i> Project Name</label>
@@ -495,157 +495,258 @@
         </div>
     </div>
 
-    <script>
-        // ✅ PRODUCTION HTTPS API
-        const API_BASE = 'https://robo-project-dashboard.onrender.com/api';
+<script>
+    // ✅ PRODUCTION HTTPS API
+    const API_BASE = 'https://robo-project-dashboard.onrender.com/api';
+    let projects = [];
+    let editingProjectId = null;
+
+    // ✅ ADD THIS AUTH CHECK - FIXES BACK BUTTON
+    document.addEventListener('DOMContentLoaded', async function() {
+        await checkAuth();  // Check token FIRST
+        initApp();  // Then load projects/UI
+    });
+
+    async function checkAuth() {
         const token = localStorage.getItem('token');
-        let projects = [];
-        let editingProjectId = null;
-
         if (!token) {
-            console.log('No token - using public API');
+            window.location.href = '/';  // Or '/index.html'
+            return;
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            loadProjects();
-            
-            // OPEN ADD PROJECT MODAL
-            document.getElementById('openAddProjectModal').addEventListener('click', openProjectModal);
-            
-            // CLOSE MODAL ON OVERLAY CLICK
-            document.getElementById('projectModal').addEventListener('click', function(e) {
-                if (e.target === this) closeProjectModal();
+        try {
+            const response = await fetch(`${API_BASE}/auth/verify`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
-            document.getElementById('projectForm').addEventListener('submit', async e => {
-                e.preventDefault();
-                const name = document.getElementById('projectName').value.trim();
-                const description = document.getElementById('projectDescription').value.trim();
-                const backendUrls = Array.from(document.querySelectorAll('#backendUrls .backend-url'))
-                    .map(i => i.value.trim()).filter(Boolean);
-                const frontendUrls = Array.from(document.querySelectorAll('#frontendUrls .frontend-url'))
-                    .map(i => i.value.trim()).filter(Boolean);
-
-                if (!name || (!backendUrls.length && !frontendUrls.length)) {
-                    alert('Add name and at least one URL');
-                    return;
-                }
-
-                const projectData = { name, description, backendUrls, frontendUrls };
-                if (editingProjectId) {
-                    projectData.id = editingProjectId;
-                }
-
-                await saveProject(projectData, !!editingProjectId);
-            });
-        });
-
-        function openProjectModal() {
-            document.getElementById('projectModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Prevent background scroll
-        }
-
-        function closeProjectModal() {
-            document.getElementById('projectModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            resetForm();
-        }
-
-        function logout() {
-            localStorage.removeItem('token');
-            window.location.href = 'index.html';
-        }
-
-        function addFrontendUrl() {
-            const container = document.getElementById('frontendUrls');
-            const row = document.createElement('div');
-            row.className = 'url-row';
-            row.innerHTML = `
-                <input type="url" class="url-input frontend-url" placeholder="https://frontend.example.com">
-                <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()">×</button>
-            `;
-            container.appendChild(row);
-        }
-
-        function addBackendUrl() {
-            const container = document.getElementById('backendUrls');
-            const row = document.createElement('div');
-            row.className = 'url-row';
-            row.innerHTML = `
-                <input type="url" class="url-input backend-url" placeholder="https://api.example.com">
-                <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()">×</button>
-            `;
-            container.appendChild(row);
-        }
-
-        function normalizeProjectId(project) {
-            if (project._id) {
-                project.id = project._id; 
-            }
-            return project;
-        }
-
-        async function loadProjects() {
-            try {
-                const res = await fetch(`${API_BASE}/projects`);
-                if (res.ok) {
-                    projects = await res.json();
-                    projects = projects.map(normalizeProjectId);
-                } else {
-                    projects = JSON.parse(localStorage.getItem('projects') || '[]');
-                }
-            } catch (error) {
-                console.error('Load projects failed:', error);
-                projects = JSON.parse(localStorage.getItem('projects') || '[]');
-            }
-            renderProjects();
-        }
-
-        function editProject(id) {
-            const project = projects.find(p => p.id === id || p._id === id);
-            if (!project) {
-                alert('Project not found!');
+            if (!response.ok) {
+                localStorage.removeItem('token');
+                window.location.href = '/';
                 return;
             }
 
-            // Open modal in edit mode
-            openProjectModal();
+            console.log('✅ Auth OK - Dashboard loaded');
+        } catch (error) {
+            console.error('Auth check failed:', error);
+            localStorage.removeItem('token');
+            window.location.href = '/';
+        }
+    }
 
-            editingProjectId = project.id || project._id;
-            document.getElementById('projectName').value = project.name || '';
-            document.getElementById('projectDescription').value = project.description || '';
-            
-            const backendContainer = document.getElementById('backendUrls');
-            backendContainer.innerHTML = '';
-            (project.backendUrls || []).forEach(url => {
-                const row = document.createElement('div');
-                row.className = 'url-row';
-                row.innerHTML = `
-                    <input type="url" class="url-input backend-url" value="${url}" placeholder="https://api.example.com">
-                    <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()">×</button>
-                `;
-                backendContainer.appendChild(row);
-            });
-            if (!(project.backendUrls || []).length) addBackendUrl();
+    function initApp() {
+        loadProjects();
+        
+        // OPEN ADD PROJECT MODAL
+        document.getElementById('openAddProjectModal').addEventListener('click', openProjectModal);
+        
+        // CLOSE MODAL ON OVERLAY CLICK
+        document.getElementById('projectModal').addEventListener('click', function(e) {
+            if (e.target === this) closeProjectModal();
+        });
 
-            const frontendContainer = document.getElementById('frontendUrls');
-            frontendContainer.innerHTML = '';
-            (project.frontendUrls || []).forEach(url => {
-                const row = document.createElement('div');
-                row.className = 'url-row';
-                row.innerHTML = `
-                    <input type="url" class="url-input frontend-url" value="${url}" placeholder="https://frontend.example.com">
-                    <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()">×</button>
-                `;
-                frontendContainer.appendChild(row);
-            });
-            if (!(project.frontendUrls || []).length) addFrontendUrl();
+        document.getElementById('projectForm').addEventListener('submit', handleFormSubmit);
+    }
 
-            document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Project';
-            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update Project';
-            document.getElementById('submitBtn').style.background = '#10b981';
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        const name = document.getElementById('projectName').value.trim();
+        const description = document.getElementById('projectDescription').value.trim();
+        const backendUrls = Array.from(document.querySelectorAll('#backendUrls .backend-url'))
+            .map(i => i.value.trim()).filter(Boolean);
+        const frontendUrls = Array.from(document.querySelectorAll('#frontendUrls .frontend-url'))
+            .map(i => i.value.trim()).filter(Boolean);
+
+        if (!name || (!backendUrls.length && !frontendUrls.length)) {
+            alert('Add name and at least one URL');
+            return;
         }
 
+        const projectData = { name, description, backendUrls, frontendUrls };
+        if (editingProjectId) {
+            projectData.id = editingProjectId;
+        }
+
+        await saveProject(projectData, !!editingProjectId);
+    }
+
+    // ✅ ALL API CALLS NOW INCLUDE AUTH HEADER
+    async function apiRequest(url, options = {}) {
+        const token = localStorage.getItem('token');
+        const defaultHeaders = {
+            'Content-Type': 'application/json',
+        };
+        if (token) {
+            defaultHeaders['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                ...defaultHeaders,
+                ...options.headers
+            }
+        });
+
+        return response;
+    }
+
+    async function loadProjects() {
+        try {
+            const res = await apiRequest(`${API_BASE}/projects`);
+            if (res.ok) {
+                projects = await res.json();
+                projects = projects.map(normalizeProjectId);
+            } else {
+                projects = JSON.parse(localStorage.getItem('projects') || '[]');
+            }
+        } catch (error) {
+            console.error('Load projects failed:', error);
+            projects = JSON.parse(localStorage.getItem('projects') || '[]');
+        }
+        renderProjects();
+    }
+
+    async function saveProject(data, isEdit = false) {
+        try {
+            const method = isEdit ? 'PUT' : 'POST';
+            const url = isEdit ? `${API_BASE}/projects/${data.id}` : `${API_BASE}/projects`;
+            
+            const res = await apiRequest(url, {
+                method,
+                body: JSON.stringify(data)
+            });
+            
+            if (res.ok) {
+                await loadProjects();
+                closeProjectModal();
+                return;
+            }
+        } catch (error) {
+            console.error('API save failed:', error);
+        }
+
+        // Fallback to localStorage
+        let localProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+        data.id = data.id || `proj_${Date.now()}`;
+        const index = localProjects.findIndex(p => p.id === data.id);
+        if (index > -1) localProjects[index] = data;
+        else localProjects.unshift(data);
+        localStorage.setItem('projects', JSON.stringify(localProjects));
+        projects = localProjects;
+        renderProjects();
+        closeProjectModal();
+    }
+
+    async function deleteProject(id) {
+        if (!confirm('Delete this project?')) return;
+        
+        try {
+            await apiRequest(`${API_BASE}/projects/${id}`, {
+                method: 'DELETE'
+            });
+        } catch (error) {
+            console.error('Delete failed:', error);
+        }
+        
+        let localProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+        localProjects = localProjects.filter(p => p.id !== id);
+        localStorage.setItem('projects', JSON.stringify(localProjects));
+        projects = localProjects;
+        renderProjects();
+    }
+
+    // Keep all your existing functions (unchanged)
+    function openProjectModal() {
+        document.getElementById('projectModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeProjectModal() {
+        document.getElementById('projectModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        resetForm();
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        window.location.href = '/';  // Use root for Vercel
+    }
+
+    function addFrontendUrl() {
+        const container = document.getElementById('frontendUrls');
+        const row = document.createElement('div');
+        row.className = 'url-row';
+        row.innerHTML = `
+            <input type="url" class="url-input frontend-url" placeholder="https://frontend.example.com">
+            <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()">×</button>
+        `;
+        container.appendChild(row);
+    }
+
+    function addBackendUrl() {
+        const container = document.getElementById('backendUrls');
+        const row = document.createElement('div');
+        row.className = 'url-row';
+        row.innerHTML = `
+            <input type="url" class="url-input backend-url" placeholder="https://api.example.com">
+            <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()">×</button>
+        `;
+        container.appendChild(row);
+    }
+
+    function normalizeProjectId(project) {
+        if (project._id) {
+            project.id = project._id; 
+        }
+        return project;
+    }
+
+    function editProject(id) {
+        const project = projects.find(p => p.id === id || p._id === id);
+        if (!project) {
+            alert('Project not found!');
+            return;
+        }
+
+        openProjectModal();
+
+        editingProjectId = project.id || project._id;
+        document.getElementById('projectName').value = project.name || '';
+        document.getElementById('projectDescription').value = project.description || '';
+        
+        const backendContainer = document.getElementById('backendUrls');
+        backendContainer.innerHTML = '';
+        (project.backendUrls || []).forEach(url => {
+            const row = document.createElement('div');
+            row.className = 'url-row';
+            row.innerHTML = `
+                <input type="url" class="url-input backend-url" value="${url}" placeholder="https://api.example.com">
+                <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()">×</button>
+            `;
+            backendContainer.appendChild(row);
+        });
+        if (!(project.backendUrls || []).length) addBackendUrl();
+
+        const frontendContainer = document.getElementById('frontendUrls');
+        frontendContainer.innerHTML = '';
+        (project.frontendUrls || []).forEach(url => {
+            const row = document.createElement('div');
+            row.className = 'url-row';
+            row.innerHTML = `
+                <input type="url" class="url-input frontend-url" value="${url}" placeholder="https://frontend.example.com">
+                <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()">×</button>
+            `;
+            frontendContainer.appendChild(row);
+        });
+        if (!(project.frontendUrls || []).length) addFrontendUrl();
+
+        document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Project';
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update Project';
+        document.getElementById('submitBtn').style.background = '#10b981';
+    }
         function resetForm() {
             editingProjectId = null;
             document.getElementById('projectForm').reset();

@@ -235,6 +235,9 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         res.status(500).json({ success: false, msg: 'Failed to send OTP' });
     }
 });
+app.get('/api/auth/verify', authenticateToken, (req, res) => {
+    res.json({ success: true, msg: 'Token valid', user: req.user });
+});
 
 app.post('/api/auth/verify-otp', async (req, res) => {
     try {
