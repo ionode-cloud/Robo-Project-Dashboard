@@ -10,19 +10,17 @@ const app = express();
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (mobile apps, etc.)
         if (!origin) return callback(null, true);
         
         const allowedOrigins = [
             'http://127.0.0.1:5501',
             'http://localhost:5501',
-            'https://robo-dashboard-kohl.vercel.app'  
+            'https://robo.ionode.cloud'  
         ];
         
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
         } else {
-            console.log('Blocked CORS origin:', origin);  // Log for Render debugging
             return callback(new Error('Not allowed by CORS'));
         }
     },
@@ -77,7 +75,7 @@ app.put('/api/projects/:id', async (req, res) => {
             req.params.id, 
             {
                 name: req.body.name,
-                description: req.body.description || '',  // ✅ UPDATE DESCRIPTION
+                description: req.body.description || '', 
                 frontendUrls: req.body.frontendUrls || [],
                 backendUrls: req.body.backendUrls || []
             }, 
@@ -217,8 +215,6 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         user.otp = otp;
         user.otpExpires = Date.now() + 10 * 60 * 1000;
         await user.save();
-
-        // ✅ PRODUCTION DETECTION
         const isProduction = process.env.NODE_ENV === 'production';
         
         if (isProduction && process.env.RESEND_API_KEY) {

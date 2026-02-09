@@ -412,7 +412,7 @@
     <header class="header">
         <div class="logo">
             <i class="fas fa-robot"></i>
-            ROBO Dashboard ---
+            ROBO Dashboard 
         </div>
         <div class="user-info">
             <button class="btn btn-danger" onclick="logout()">
@@ -496,12 +496,12 @@
     </div>
 
 <script>
-    // ✅ PRODUCTION HTTPS API
-    const API_BASE = 'https://robo-project-dashboard.onrender.com/api';
+    //  PRODUCTION HTTPS API
+    const API_BASE = 'https://robo.ionode.cloud/api';
     let projects = [];
     let editingProjectId = null;
 
-    // ✅ ADD THIS AUTH CHECK - FIXES BACK BUTTON
+    //  ADD THIS AUTH CHECK - FIXES BACK BUTTON
     document.addEventListener('DOMContentLoaded', async function() {
         await checkAuth();  // Check token FIRST
         initApp();  // Then load projects/UI
@@ -510,7 +510,7 @@
     async function checkAuth() {
         const token = localStorage.getItem('token');
         if (!token) {
-            window.location.href = '/';  // Or '/index.html'
+            window.location.href = '/'; 
             return;
         }
 
@@ -571,7 +571,7 @@
         await saveProject(projectData, !!editingProjectId);
     }
 
-    // ✅ ALL API CALLS NOW INCLUDE AUTH HEADER
+    // ALL API CALLS NOW INCLUDE AUTH HEADER
     async function apiRequest(url, options = {}) {
         const token = localStorage.getItem('token');
         const defaultHeaders = {
