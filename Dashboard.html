@@ -64,13 +64,15 @@
             white-space: nowrap;
         }
 
-        .btn-primary { background: #3b82f6; color: white; }
-        .btn-primary:hover { background: #2563eb; }
+        .btn-primary { background: #23c01e;; color: white; }
+        .btn-primary:hover { background: #2ceb25; }
         .btn-danger { background: #ef4444; color: white; }
         .btn-danger:hover { background: #dc2626; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
         .btn-small { padding: 0.5rem 0.75rem; font-size: 0.75rem; }
 
-        /* MAIN CONTAINER */
+        
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -95,10 +97,90 @@
             gap: 0.5rem;
         }
 
-        /* FORM GRID - MOBILE STACK */
+        /* PROJECTS HEADER WITH ADD BUTTON ON RIGHT */
+        .projects-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        /* MODAL OVERLAY */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* MODAL */
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 90%;
+            max-height: 90vh;
+            width: 100%;
+            padding: 2rem;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            transform: scale(0.7) translateY(30px);
+            animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        @keyframes modalSlideIn {
+            to {
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
         .form-grid {
             display: grid;
-            gap: 1.25rem;
+            gap: 1.5rem;
         }
 
         .form-group {
@@ -116,20 +198,28 @@
             gap: 0.375rem;
         }
 
-        .form-group input {
-            padding: 0.75rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+        .form-group input,
+        .form-group textarea {
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
             font-size: 1rem;
+            transition: border-color 0.2s;
         }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
         }
 
-        /* URL SECTIONS - MOBILE STACK */
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+            max-height: 200px;
+        }
+
         .urls-row {
             display: flex;
             flex-direction: column;
@@ -162,9 +252,9 @@
         .url-row input { 
             flex: 1; 
             min-width: 200px;
-            padding: 0.75rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
             font-size: 1rem;
         }
 
@@ -235,6 +325,12 @@
             gap: 0.5rem;
         }
 
+        .description-cell {
+            font-size: 0.875rem;
+            color: #6b7280;
+            max-width: 200px;
+        }
+
         .url-tags {
             display: flex;
             flex-wrap: wrap;
@@ -270,7 +366,7 @@
             color: #6b7280;
         }
 
-        /* RESPONSIVE BREAKPOINTS - MOBILE FIRST */
+        /* RESPONSIVE BREAKPOINTS */
         @media (min-width: 480px) {
             .btn { font-size: 0.875rem; }
             .container { padding: 2rem 1.5rem; }
@@ -279,6 +375,7 @@
         @media (max-width: 767px) {
             .projects-grid { display: grid !important; }
             .projects-table { display: none !important; }
+            .modal { margin: 1rem; width: calc(100% - 2rem); padding: 1.5rem; }
         }
 
         @media (min-width: 768px) {
@@ -294,8 +391,7 @@
             .url-row input {
                 min-width: 250px;
             }
-            
-            /* SWITCH TO TABLE ON TABLET+ */
+
             .projects-grid { display: none !important; }
             .projects-table { display: table !important; }
         }
@@ -316,7 +412,7 @@
     <header class="header">
         <div class="logo">
             <i class="fas fa-robot"></i>
-            ROBO Dashboard
+            ROBO Dashboard ---
         </div>
         <div class="user-info">
             <button class="btn btn-danger" onclick="logout()">
@@ -328,52 +424,73 @@
 
     <div class="container">
         <div class="card">
-            <h2 id="formTitle"><i class="fas fa-plus"></i> Add Project</h2>
-            <form id="projectForm" class="form-grid">
-                <div class="form-group">
-                    <label><i class="fas fa-project-diagram"></i> Project Name</label>
-                    <input type="text" id="projectName" placeholder="Enter project name" required>
-                </div>
-                
-                <div class="urls-row">
-                    <div class="url-section">
-                        <h4><i class="fas fa-database"></i> Backend URLs</h4>
-                        <div id="backendUrls">
-                            <div class="url-row">
-                                <input type="url" class="url-input backend-url" placeholder="https://api.example.com">
-                                <div class="url-controls">
-                                    <button type="button" class="btn btn-primary btn-small" onclick="addBackendUrl()">+</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="url-section">
-                        <h4><i class="fas fa-globe"></i> Frontend URLs</h4>
-                        <div id="frontendUrls">
-                            <div class="url-row">
-                                <input type="url" class="url-input frontend-url" placeholder="https://frontend.example.com">
-                                <div class="url-controls">
-                                    <button type="button" class="btn btn-primary btn-small" onclick="addFrontendUrl()">+</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; font-size: 1.1rem;">
-                    <i class="fas fa-rocket"></i> Add Project
+            <!-- PROJECTS HEADER WITH ADD BUTTON ON RIGHT -->
+            <div class="projects-header">
+                <h2><i class="fas fa-list"></i> Projects</h2>
+                <button id="openAddProjectModal" class="btn btn-primary" style="font-size: 1rem; padding: 0.75rem 1.5rem;">
+                    <i class="fas fa-plus"></i>
+                    Add New Project
                 </button>
-            </form>
-        </div>
+            </div>
 
-        <div class="card">
-            <h2><i class="fas fa-list"></i> Projects</h2>
             <div id="projectsContainer">
                 <div class="no-projects">
                     <i class="fas fa-rocket" style="font-size: 3rem; color: #6b7280;"></i>
                     <p>No projects yet. Add one above!</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD/EDIT PROJECT MODAL -->
+    <div id="projectModal" class="modal-overlay">
+        <div class="modal">
+            <button class="modal-close" onclick="closeProjectModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="modalContent">
+                <h2 id="formTitle"><i class="fas fa-plus"></i> Add Project</h2>
+                <form id="projectForm" class="form-grid">
+                    <div class="form-group">
+                        <label><i class="fas fa-project-diagram"></i> Project Name</label>
+                        <input type="text" id="projectName" placeholder="Enter project name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-align-left"></i> Description</label>
+                        <textarea id="projectDescription" placeholder="Enter project description (optional)"></textarea>
+                    </div>
+                    
+                    <div class="urls-row">
+                        <div class="url-section">
+                            <h4><i class="fas fa-database"></i> Backend URLs</h4>
+                            <div id="backendUrls">
+                                <div class="url-row">
+                                    <input type="url" class="url-input backend-url" placeholder="https://api.example.com">
+                                    <div class="url-controls">
+                                        <button type="button" class="btn btn-primary btn-small" onclick="addBackendUrl()">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="url-section">
+                            <h4><i class="fas fa-globe"></i> Frontend URLs</h4>
+                            <div id="frontendUrls">
+                                <div class="url-row">
+                                    <input type="url" class="url-input frontend-url" placeholder="https://frontend.example.com">
+                                    <div class="url-controls">
+                                        <button type="button" class="btn btn-primary btn-small" onclick="addFrontendUrl()">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; font-size: 1.1rem;">
+                        <i class="fas fa-rocket"></i> Add Project
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -391,9 +508,19 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             loadProjects();
+            
+            // OPEN ADD PROJECT MODAL
+            document.getElementById('openAddProjectModal').addEventListener('click', openProjectModal);
+            
+            // CLOSE MODAL ON OVERLAY CLICK
+            document.getElementById('projectModal').addEventListener('click', function(e) {
+                if (e.target === this) closeProjectModal();
+            });
+
             document.getElementById('projectForm').addEventListener('submit', async e => {
                 e.preventDefault();
                 const name = document.getElementById('projectName').value.trim();
+                const description = document.getElementById('projectDescription').value.trim();
                 const backendUrls = Array.from(document.querySelectorAll('#backendUrls .backend-url'))
                     .map(i => i.value.trim()).filter(Boolean);
                 const frontendUrls = Array.from(document.querySelectorAll('#frontendUrls .frontend-url'))
@@ -404,7 +531,7 @@
                     return;
                 }
 
-                const projectData = { name, backendUrls, frontendUrls };
+                const projectData = { name, description, backendUrls, frontendUrls };
                 if (editingProjectId) {
                     projectData.id = editingProjectId;
                 }
@@ -412,6 +539,17 @@
                 await saveProject(projectData, !!editingProjectId);
             });
         });
+
+        function openProjectModal() {
+            document.getElementById('projectModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+
+        function closeProjectModal() {
+            document.getElementById('projectModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            resetForm();
+        }
 
         function logout() {
             localStorage.removeItem('token');
@@ -470,8 +608,12 @@
                 return;
             }
 
+            // Open modal in edit mode
+            openProjectModal();
+
             editingProjectId = project.id || project._id;
             document.getElementById('projectName').value = project.name || '';
+            document.getElementById('projectDescription').value = project.description || '';
             
             const backendContainer = document.getElementById('backendUrls');
             backendContainer.innerHTML = '';
@@ -502,7 +644,6 @@
             document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Project';
             document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update Project';
             document.getElementById('submitBtn').style.background = '#10b981';
-            document.querySelector('.card:first-child').scrollIntoView({ behavior: 'smooth' });
         }
 
         function resetForm() {
@@ -542,7 +683,7 @@
                 
                 if (res.ok) {
                     await loadProjects();
-                    resetForm();
+                    closeProjectModal();
                     return;
                 }
             } catch (error) {
@@ -557,7 +698,7 @@
             localStorage.setItem('projects', JSON.stringify(localProjects));
             projects = localProjects;
             renderProjects();
-            resetForm();
+            closeProjectModal();
         }
 
         async function deleteProject(id) {
@@ -589,7 +730,7 @@
                 container.innerHTML = `
                     <div class="no-projects">
                         <i class="fas fa-rocket" style="font-size: 3rem; color: #6b7280;"></i>
-                        <p>No projects yet. Add one above!</p>
+                        <p>No projects yet. Add one using the button above!</p>
                     </div>
                 `;
                 return;
@@ -616,6 +757,7 @@
                                     </button>
                                 </div>
                             </div>
+                            ${p.description ? `<p style="margin-bottom: 1rem; color: #6b7280; font-size: 0.9rem;">${p.description}</p>` : ''}
                             <div class="url-tags">
                                 ${p.backendUrls?.length ? p.backendUrls.map(url => 
                                     `<a href="${url}" target="_blank" class="url-tag backend">
@@ -637,9 +779,10 @@
                 <table class="projects-table">
                     <thead>
                         <tr>
-                            <th style="width: 25%;">Project Name</th>
-                            <th style="width: 35%;">Backend URLs</th>
-                            <th style="width: 35%;">Frontend URLs</th>
+                            <th style="width: 20%;">Project Name</th>
+                            <th style="width: 20%;">Description</th>
+                            <th style="width: 30%;">Backend URLs</th>
+                            <th style="width: 25%;">Frontend URLs</th>
                             <th style="width: 15%;">Actions</th>
                         </tr>
                     </thead>
@@ -649,6 +792,7 @@
                             return `
                             <tr>
                                 <td><div class="project-name-cell"><i class="fas fa-project-diagram"></i> ${p.name || 'Unnamed'}</div></td>
+                                <td class="description-cell">${p.description || 'No description'}</td>
                                 <td>
                                     <div class="url-tags">
                                         ${p.backendUrls?.length ? p.backendUrls.map(url => 
