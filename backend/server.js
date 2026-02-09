@@ -40,6 +40,7 @@ mongoose.connect(process.env.MONGO_URI);
 //  PROJECTS (Public - No login required)
 const projectSchema = new mongoose.Schema({
     name: { type: String, required: true },
+    description: { type: String, default: '' }, 
     frontendUrls: [String],
     backendUrls: [String],
     createdAt: { type: Date, default: Date.now }
@@ -59,6 +60,7 @@ app.post('/api/projects', async (req, res) => {
     try {
         const project = new Project({
             name: req.body.name,
+             description: req.body.description || '',
             frontendUrls: req.body.frontendUrls || [],
             backendUrls: req.body.backendUrls || []
         });
@@ -71,10 +73,21 @@ app.post('/api/projects', async (req, res) => {
 
 app.put('/api/projects/:id', async (req, res) => {
     try {
-        const project = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const project = await Project.findByIdAndUpdate(
+            req.params.id, 
+            {
+                name: req.body.name,
+                description: req.body.description || '',  // ✅ UPDATE DESCRIPTION
+                frontendUrls: req.body.frontendUrls || [],
+                backendUrls: req.body.backendUrls || []
+            }, 
+            { new: true }
+        );
         if (!project) return res.status(404).json({ success: false, msg: 'Project not found' });
+        console.log('Project updated:', project.name);
         res.json({ success: true, project });
     } catch (error) {
+        console.error('PUT /api/projects error:', error);
         res.status(500).json({ success: false, msg: 'Failed to update project' });
     }
 });
