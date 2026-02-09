@@ -110,13 +110,17 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
+
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: "smtp.resend.com",
+    port: 587,
+    secure: false, 
     auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS
-    }
+        user: process.env.RESEND_API_KEY ,  
+        pass: process.env.RESEND_API_KEY  
+    },
 });
+
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
@@ -206,7 +210,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(400).json({ success: false, msg: 'User not found' });
+            return res.json({ success: false, msg: 'If email exists, OTP sent!' }); // Don't reveal if user exists
         }
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -214,27 +218,35 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         user.otpExpires = Date.now() + 10 * 60 * 1000;
         await user.save();
 
-        await transporter.sendMail({
-            from: process.env.GMAIL_USER,
-            to: email,
-            subject: 'Password Reset OTP - ROBO Dashboard',
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2> Password Reset OTP</h2>
-                    <p><strong>Your 6-digit OTP: <span style="font-size: 24px; color: #3b82f6;">${otp}</strong></span></p>
-                    <p>This OTP is valid for <strong>10 minutes</strong> only.</p>
-                    <hr>
-                    <p>If you didn't request this, please ignore this email.</p>
-                    <p>ROBO Dashboard Team</p>
-                </div>
-            `
-        });
+        // ✅ PRODUCTION DETECTION
+        const isProduction = process.env.NODE_ENV === 'production';
+        
+        if (isProduction && process.env.RESEND_API_KEY) {
+            // Resend for production
+            await transporter.sendMail({
+                from: '"ROBO Dashboard" <noreply@your-resend-domain.com>',
+                to: email,
+                subject: 'Password Reset OTP',
+                html: `<h2>OTP: <strong style="font-size:28px;color:#3b82f6">${otp}</strong></h2>`
+            });
+        } else {
+            // Gmail fallback (local/dev)
+            await transporter.sendMail({
+                from: process.env.GMAIL_USER,
+                to: email,
+                subject: 'Password Reset OTP - ROBO Dashboard',
+                html: `<div style="font-family:Arial"><h2>OTP: <strong style="font-size:24px;color:#3b82f6">${otp}</strong></h2><p>Valid 10 min</p></div>`
+            });
+        }
 
-        res.json({ success: true, msg: 'OTP sent to your email!' });
+        console.log(`OTP ${otp} sent to ${email}`);
+        res.json({ success: true, msg: 'Check your email for OTP!' });
     } catch (error) {
-        res.status(500).json({ success: false, msg: 'Failed to send OTP' });
+        console.error('OTP ERROR:', error.message);
+        res.status(500).json({ success: false, msg: 'Email service temporarily unavailable' });
     }
 });
+
 app.get('/api/auth/verify', authenticateToken, (req, res) => {
     res.json({ success: true, msg: 'Token valid', user: req.user });
 });

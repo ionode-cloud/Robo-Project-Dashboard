@@ -701,8 +701,6 @@
     loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
 
     try {
-      console.log('Attempting login for:', email);
-      
       //  FIXED: Correct endpoint for your backend
       const response = await fetch(`${API_BASE}/login`, {
         method: 'POST',
@@ -711,8 +709,6 @@
       });
 
       const data = await response.json();
-      console.log('Response:', data);
-
       if (response.ok && data.success && data.token) {
         localStorage.setItem('token', data.token);
         showMessage('Login successful! Redirecting...', 'success');
