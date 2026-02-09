@@ -9,7 +9,7 @@ const cors = require('cors');
 const app = express();
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 app.use(cors({
-    origin: ['http://127.0.0.1:5501', 'http://localhost:5501', '*'], 
+    origin: ['http://127.0.0.1:5501', 'http://localhost:5501', '*','https://robo-project-dashboard.vercel.app/'], 
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
