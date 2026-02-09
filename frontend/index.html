@@ -718,7 +718,8 @@
         localStorage.setItem('token', data.token);
         showMessage('Login successful! Redirecting...', 'success');
         setTimeout(() => {
-          window.location.href = '/dashboard'; 
+          window.location.href = '/dashboard';  
+
         }, 1500);
       } else {
         showMessage(data.msg || 'Login failed');
