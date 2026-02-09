@@ -33,7 +33,10 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // MongoDB Connection - SILENT
-mongoose.connect(process.env.MONGO_URI);
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
 
 //  PROJECTS (Public - No login required)
 const projectSchema = new mongoose.Schema({
@@ -135,33 +138,6 @@ const authenticateToken = (req, res, next) => {
         res.status(401).json({ success: false, msg: 'Invalid token' });
     }
 };
-app.post('/api/auth/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        if (!email || !password) {
-            return res.status(400).json({ success: false, msg: 'Email and password required' });
-        }
-
-        const user = await User.findOne({ email });
-        if (!user || !await bcrypt.compare(password, user.password)) {
-            return res.status(400).json({ success: false, msg: 'Invalid credentials' });
-        }
-
-        const token = jwt.sign(
-            { id: user._id, email: user.email }, 
-            process.env.JWT_SECRET || 'your-super-secret-key', 
-            { expiresIn: '24h' }
-        );
-
-        res.json({ 
-            success: true, 
-            token, 
-            user: { id: user._id, email: user.email } 
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, msg: 'Server error' });
-    }
-});
 
 // GET /api/auth/login - Health check (returns login form info)
 app.get('/api/auth/login', (req, res) => {
@@ -311,5 +287,5 @@ createTestUser();
 
 const PORT = process.env.PORT || 5555;
 app.listen(PORT, () => {
-    
+     console.log(`Server running on port ${PORT}`);
 });
