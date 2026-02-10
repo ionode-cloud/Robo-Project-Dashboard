@@ -452,7 +452,7 @@
                 <h2 id="formTitle"></i> New Cloud App</h2>
                 <form id="projectForm" class="form-grid">
                     <div class="form-group">
-                        <label><i class="fas fa-project-diagram"></i> Project Name</label>
+                        <label><i class="fas fa-project-diagram"></i> Product Name</label>
                         <input type="text" id="projectName" placeholder="Enter project name" required>
                     </div>
 
@@ -488,7 +488,7 @@
                     </div>
 
                     <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; font-size: 1.1rem;">
-                        <i class="fas fa-rocket"></i> Add Project
+                        <i class="fas fa-rocket"></i> Add Product
                     </button>
                 </form>
             </div>
@@ -640,7 +640,7 @@
     }
 
     async function deleteProject(id) {
-        if (!confirm('Delete this project?')) return;
+        if (!confirm('Delete this product?')) return;
         
         try {
             await apiRequest(`${API_BASE}/projects/${id}`, {
@@ -669,10 +669,13 @@
         resetForm();
     }
 
-    function logout() {
-        localStorage.removeItem('token');
-        window.location.href = '/';  // Use root for Vercel
-    }
+   function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('projects'); 
+    
+    window.location.href = '/?_=' + Date.now();
+}
+
 
     function addFrontendUrl() {
         const container = document.getElementById('frontendUrls');
@@ -742,8 +745,8 @@
         });
         if (!(project.frontendUrls || []).length) addFrontendUrl();
 
-        document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Project';
-        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update Project';
+        document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Product';
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update Product';
         document.getElementById('submitBtn').style.background = '#10b981';
     }
         function resetForm() {
@@ -802,7 +805,7 @@
         }
 
         async function deleteProject(id) {
-            if (!confirm('Delete this project?')) return;
+            if (!confirm('Delete this product?')) return;
             
             try {
                 await fetch(`${API_BASE}/projects/${id}`, {
@@ -879,7 +882,7 @@
                 <table class="projects-table">
                     <thead>
                         <tr>
-                            <th style="width: 20%;">Project Name</th>
+                            <th style="width: 20%;">Product</th>
                             <th style="width: 20%;">Description</th>
                             <th style="width: 30%;">Backend URLs</th>
                             <th style="width: 25%;">Frontend URLs</th>
