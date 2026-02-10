@@ -7,6 +7,9 @@ const nodemailer = require('nodemailer');
 const cors = require('cors');
 
 const app = express();
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../')));
+
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 app.use(cors({
     origin: function (origin, callback) {
@@ -16,7 +19,7 @@ app.use(cors({
             'http://127.0.0.1:5501',
             'http://localhost:5501',
             'https://ionode.cloud',
-            'https://www.ionode.cloud'  
+             
         ];
         
         if (allowedOrigins.includes(origin)) {
