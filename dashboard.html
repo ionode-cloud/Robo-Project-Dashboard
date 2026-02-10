@@ -688,12 +688,14 @@ fetch("https://ionode.cloud/api/auth/verify", {
         resetForm();
     }
 
-   function logout() {
+ function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('projects'); 
     
-    window.location.href = '/?_=' + Date.now();
+    window.location.href = '/';
+    window.location.reload(true);
 }
+
 
 
     function addFrontendUrl() {
