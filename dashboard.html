@@ -496,6 +496,25 @@
     </div>
 
 <script>
+    const token = localStorage.getItem("token");
+
+fetch("https://ionode.cloud/api/auth/verify", {
+  method: "GET",
+  headers: {
+    "Authorization": `Bearer ${token}`
+  }
+})
+.then(res => res.json())
+.then(data => {
+  if (!data.success) {
+    localStorage.removeItem("token");
+    window.location.href = "/";
+  }
+})
+.catch(() => {
+  window.location.href = "/";
+});
+
     //  PRODUCTION HTTPS API
     const API_BASE = 'https://ionode.cloud/api';
     let projects = [];

@@ -183,17 +183,34 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 app.get('/api/auth/verify', (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).json({ success: false });
+  const authHeader = req.headers.authorization;
 
-    const token = authHeader.split(' ')[1];
+  if (!authHeader) {
+    return res.status(401).json({
+      success: false,
+      msg: 'No token provided'
+    });
+  }
 
-    try {
-        jwt.verify(token, process.env.JWT_SECRET || 'your-super-secret-key');
-        res.json({ success: true });
-    } catch (err) {
-        res.status(401).json({ success: false });
-    }
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET 
+    );
+
+    res.json({
+      success: true,
+      user: decoded
+    });
+
+  } catch (err) {
+    res.status(401).json({
+      success: false,
+      msg: 'Invalid token'
+    });
+  }
 });
 
 app.post('/api/auth/forgot-password', async (req, res) => {
